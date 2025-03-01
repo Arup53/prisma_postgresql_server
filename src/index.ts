@@ -151,10 +151,34 @@ async function createUser(
   console.log(res);
 }
 
-createUser("koi", "koimoi420", {
-  firstName: "koi",
-  lastName: "koi",
+// createUser("koi", "koimoi420", {
+//   firstName: "koi",
+//   lastName: "koi",
+// });
+
+async function updateUser(name: string, { firstName, lastName }: FullName) {
+  const res = await prisma.user.update({
+    where: { name: name },
+    data: {
+      firstName,
+      lastName,
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  console.log(res);
+  return res;
+}
+
+const res = await updateUser("koi", {
+  firstName: "Koipoi",
+  lastName: "moikoi",
 });
+
+console.log(res);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
