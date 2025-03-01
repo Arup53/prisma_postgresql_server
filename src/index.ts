@@ -126,6 +126,36 @@ app.get("/", (req: Request, res: Response) => {
 
 // setInterval(fetchAndCacheCoins, 600000);
 
+interface FullName {
+  firstName: string;
+  lastName: string;
+}
+
+async function createUser(
+  name: string,
+  password: string,
+  { firstName, lastName }: FullName
+) {
+  const res = await prisma.user.create({
+    data: {
+      name,
+      firstName: firstName,
+      lastName: lastName,
+      password,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  console.log(res);
+}
+
+createUser("koi", "koimoi420", {
+  firstName: "koi",
+  lastName: "koi",
+});
+
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
