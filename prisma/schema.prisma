@@ -16,19 +16,37 @@ datasource db {
 }
 
 
-model Coin {
-  id                       String   @id
-  symbol                   String
-  name                     String
-  currentPrice             Float?
-  marketCap                Float?
-  marketCapRank            Int?
-  volume24h                Float?
-  priceChange24h           Float?
-  priceChangePercentage24h Float?
-  lastUpdated              DateTime?
-  fullData                 Json     // Stores the complete API response
-  fetchedAt                DateTime @default(now())
+// model Coin {
+//   id                       String   @id
+//   symbol                   String
+//   name                     String
+//   currentPrice             Float?
+//   marketCap                Float?
+//   marketCapRank            Int?
+//   volume24h                Float?
+//   priceChange24h           Float?
+//   priceChangePercentage24h Float?
+//   lastUpdated              DateTime?
+//   fullData                 Json     // Stores the complete API response
+//   fetchedAt                DateTime @default(now())
 
-  @@map("coins")
+//   @@map("coins")
+// }
+
+
+
+model User {
+  id      Int    @id @default(autoincrement())
+  name    String    @unique
+  firstName String?
+  lastName  String?
+  password  String
+}
+
+model Todo {
+     id           Int @id @default(autoincrement())
+     title        String
+     done         String
+     description  String?
+     userId       Int
 }
