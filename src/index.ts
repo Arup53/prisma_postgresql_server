@@ -124,7 +124,7 @@ const storeCoinsWithPrisma = async (coins: any[]) => {
 
 fetchAndCacheCoins();
 
-// setInterval(fetchAndCacheCoins, 120000);
+setInterval(fetchAndCacheCoins, 600000);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
