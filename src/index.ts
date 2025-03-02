@@ -131,6 +131,18 @@ interface FullName {
   lastName: string;
 }
 
+async function getUser(name: string) {
+  const res = await prisma.user.findUnique({
+    where: { name: name },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  return res;
+}
+
 async function createUser(
   name: string,
   password: string,
@@ -173,10 +185,12 @@ async function updateUser(name: string, { firstName, lastName }: FullName) {
   return res;
 }
 
-const res = await updateUser("koi", {
-  firstName: "Koipoi",
-  lastName: "moikoi",
-});
+// const res = await updateUser("koi", {
+//   firstName: "Koipoi",
+//   lastName: "moikoi",
+// });
+
+const res = await getUser("koi");
 
 console.log(res);
 
