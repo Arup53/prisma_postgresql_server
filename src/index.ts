@@ -264,6 +264,8 @@ async function insertCoinAndMarketInfo(coinArr: any, marketObj: any) {
 
 fetchCoinAndMarketCap();
 
+setInterval(fetchCoinAndMarketCap, 3 * 60 * 1000);
+
 // const res = await getUser("koi");
 
 // console.log(res);
