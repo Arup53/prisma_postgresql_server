@@ -190,19 +190,27 @@ app.get("/", (req: Request, res: Response) => {
 //   lastName: "moikoi",
 // });
 
+interface PriceChangePercentage {
+  [key: string]: number; // Ensures that `usd` and other currencies are numbers
+}
+
+interface CoinData {
+  price_change_percentage_24h: PriceChangePercentage;
+}
+
 interface CoinItem {
   id: string;
   coin_id: number;
   name: string;
   symbol: string;
-  market_cap_rank?: number; // Optional field
+  market_cap_rank?: number;
   thumb: string;
   small: string;
   large: string;
   slug: string;
   price_btc: number;
   score: number;
-  data: Record<string, unknown>; // More specific than 'any'
+  data: CoinData; // Now explicitly typed
 }
 
 interface TrendingCoin {
@@ -214,7 +222,7 @@ interface TrendingCoinsResponse {
 }
 
 async function fetchCoinAndMarketCap() {
-  const resCoin = await axios.get(
+  const resCoin = await axios.get<TrendingCoinsResponse>(
     "https://api.coingecko.com/api/v3/search/trending",
     {
       headers: {
@@ -223,7 +231,7 @@ async function fetchCoinAndMarketCap() {
     }
   );
 
-  const newArr = resCoin.data.coins.slice(0, 3);
+  const newArr: TrendingCoin[] = resCoin.data.coins.slice(0, 3);
 
   const resMarket = await axios.get("https://api.coingecko.com/api/v3/global");
   const obj = {
@@ -235,13 +243,16 @@ async function fetchCoinAndMarketCap() {
   await insertCoinAndMarketInfo(newArr, obj);
 }
 
-async function insertCoinAndMarketInfo(coinArr: any, marketObj: any) {
+async function insertCoinAndMarketInfo(
+  coinArr: TrendingCoin[],
+  marketObj: any
+) {
   return await prisma.$transaction(async (tx) => {
     await tx.trending.deleteMany();
     await tx.marketCap.deleteMany();
 
     const coinInsert = await Promise.all(
-      coinArr.map((coin: any) =>
+      coinArr.map((coin: TrendingCoin) =>
         tx.trending.create({
           data: {
             name: coin.item.name,
