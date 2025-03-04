@@ -231,6 +231,7 @@ async function fetchCoinAndMarketCap() {
     change: resMarket.data.data.market_cap_change_percentage_24h_usd,
   };
 
+  console.log(obj);
   await insertCoinAndMarketInfo(newArr, obj);
 }
 
@@ -253,7 +254,7 @@ async function insertCoinAndMarketInfo(coinArr: any, marketObj: any) {
 
     const marketCapInsert = await tx.marketCap.create({
       data: {
-        capital: marketObj.market_cap,
+        capital: marketObj.marketCap,
         change: marketObj.change,
       },
     });
