@@ -55,72 +55,72 @@ app.get("/", (req: Request, res: Response) => {
 //   }
 // };
 
-const storeCoinsWithPrisma = async (coins: any[]) => {
-  try {
-    console.log(`Storing ${coins.length} coins in database...`);
+// const storeCoinsWithPrisma = async (coins: any[]) => {
+//   try {
+//     console.log(`Storing ${coins.length} coins in database...`);
 
-    // Process in smaller batches to avoid timeouts
-    const batchSize = 50;
-    for (let i = 0; i < coins.length; i += batchSize) {
-      const batch = coins.slice(i, i + batchSize);
-      console.log(
-        `Processing batch ${i / batchSize + 1} of ${Math.ceil(
-          coins.length / batchSize
-        )}, size: ${batch.length}`
-      );
+//     // Process in smaller batches to avoid timeouts
+//     const batchSize = 50;
+//     for (let i = 0; i < coins.length; i += batchSize) {
+//       const batch = coins.slice(i, i + batchSize);
+//       console.log(
+//         `Processing batch ${i / batchSize + 1} of ${Math.ceil(
+//           coins.length / batchSize
+//         )}, size: ${batch.length}`
+//       );
 
-      // Use transaction with increased timeout for each batch
-      await prisma.$transaction(
-        async (tx) => {
-          const upsertPromises = batch.map((coin: any) => {
-            return tx.coin.upsert({
-              where: { id: coin.id },
-              update: {
-                symbol: coin.symbol,
-                name: coin.name,
-                currentPrice: coin.current_price,
-                marketCap: coin.market_cap,
-                marketCapRank: coin.market_cap_rank,
-                volume24h: coin.total_volume,
-                priceChange24h: coin.price_change_24h,
-                priceChangePercentage24h: coin.price_change_percentage_24h,
-                lastUpdated: new Date(coin.last_updated),
-                fullData: coin,
-                fetchedAt: new Date(),
-              },
-              create: {
-                id: coin.id,
-                symbol: coin.symbol,
-                name: coin.name,
-                currentPrice: coin.current_price,
-                marketCap: coin.market_cap,
-                marketCapRank: coin.market_cap_rank,
-                volume24h: coin.total_volume,
-                priceChange24h: coin.price_change_24h,
-                priceChangePercentage24h: coin.price_change_percentage_24h,
-                lastUpdated: new Date(coin.last_updated),
-                fullData: coin,
-                fetchedAt: new Date(),
-              },
-            });
-          });
+//       // Use transaction with increased timeout for each batch
+//       await prisma.$transaction(
+//         async (tx) => {
+//           const upsertPromises = batch.map((coin: any) => {
+//             return tx.coin.upsert({
+//               where: { id: coin.id },
+//               update: {
+//                 symbol: coin.symbol,
+//                 name: coin.name,
+//                 currentPrice: coin.current_price,
+//                 marketCap: coin.market_cap,
+//                 marketCapRank: coin.market_cap_rank,
+//                 volume24h: coin.total_volume,
+//                 priceChange24h: coin.price_change_24h,
+//                 priceChangePercentage24h: coin.price_change_percentage_24h,
+//                 lastUpdated: new Date(coin.last_updated),
+//                 fullData: coin,
+//                 fetchedAt: new Date(),
+//               },
+//               create: {
+//                 id: coin.id,
+//                 symbol: coin.symbol,
+//                 name: coin.name,
+//                 currentPrice: coin.current_price,
+//                 marketCap: coin.market_cap,
+//                 marketCapRank: coin.market_cap_rank,
+//                 volume24h: coin.total_volume,
+//                 priceChange24h: coin.price_change_24h,
+//                 priceChangePercentage24h: coin.price_change_percentage_24h,
+//                 lastUpdated: new Date(coin.last_updated),
+//                 fullData: coin,
+//                 fetchedAt: new Date(),
+//               },
+//             });
+//           });
 
-          return Promise.all(upsertPromises);
-        },
-        {
-          timeout: 15000, // Increase default timeout from 5000ms to 15000ms
-        }
-      );
+//           return Promise.all(upsertPromises);
+//         },
+//         {
+//           timeout: 15000, // Increase default timeout from 5000ms to 15000ms
+//         }
+//       );
 
-      console.log(`Batch ${i / batchSize + 1} completed`);
-    }
+//       console.log(`Batch ${i / batchSize + 1} completed`);
+//     }
 
-    console.log(`Successfully stored all ${coins.length} coins in database.`);
-  } catch (error) {
-    console.error("Prisma database storage error:", error);
-    throw error;
-  }
-};
+//     console.log(`Successfully stored all ${coins.length} coins in database.`);
+//   } catch (error) {
+//     console.error("Prisma database storage error:", error);
+//     throw error;
+//   }
+// };
 
 // fetchAndCacheCoins();
 
@@ -214,7 +214,7 @@ interface TrendingCoinsResponse {
 }
 
 async function fetchCoinAndMarketCap() {
-  const resCoin = await axios.get<TrendingCoinsResponse>(
+  const resCoin = await axios.get(
     "https://api.coingecko.com/api/v3/search/trending",
     {
       headers: {
@@ -223,21 +223,41 @@ async function fetchCoinAndMarketCap() {
     }
   );
 
-  const newArr: TrendingCoin[] = resCoin.data.coins.slice(0, 3);
+  const newArr = resCoin.data.coins.slice(0, 3);
 
   const resMarket = await axios.get("https://api.coingecko.com/api/v3/global");
   const obj = {
     marketCap: resMarket.data.data.total_market_cap.usd,
     change: resMarket.data.data.market_cap_change_percentage_24h_usd,
   };
+
+  await insertCoinAndMarketInfo(newArr, obj);
 }
 
-async function insertCoinAndMarketInfo(coinArr, marketObj) {
-  return prisma.$transaction(async (tx) => {
+async function insertCoinAndMarketInfo(coinArr: any, marketObj: any) {
+  return await prisma.$transaction(async (tx) => {
     await tx.trending.deleteMany();
     await tx.marketCap.deleteMany();
 
-    const coinInsert = await tx.trending.create;
+    const coinInsert = await Promise.all(
+      coinArr.map((coin: any) =>
+        tx.trending.create({
+          data: {
+            name: coin.item.name,
+            image: coin.item.small,
+            change: coin.item.data.price_change_percentage_24h.usd,
+          },
+        })
+      )
+    );
+
+    const marketCapInsert = await tx.marketCap.create({
+      data: {
+        capital: marketObj.market_cap,
+        change: marketObj.change,
+      },
+    });
+    return { coinInsert, marketCapInsert };
   });
 }
 
