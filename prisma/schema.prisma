@@ -59,10 +59,12 @@ model Trending {
   name  String
   image String
   change Float?
+  createdAt DateTime @default(now())
 }
 
 model MarketCap {
   id  Int @id @default(autoincrement())
   capital Float?
   change  Float?
+  createdAt DateTime @default(now())
 }
