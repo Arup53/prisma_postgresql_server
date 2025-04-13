@@ -89,8 +89,11 @@ model Transaction {
 
 model CardDetails {
   id           String   @id 
-  cardholder_Id String
-  card_id      String
+  cardholder_Id String @unique
+  card_id      String @unique
   created_at   DateTime @default(now())
+  status      Boolean  @default(false)
   user         User     @relation(fields: [id], references: [id], onDelete: Cascade)
 }
+
+// need to add staus --- deactive as default

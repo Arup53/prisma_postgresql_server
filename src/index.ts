@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import axios from "axios";
 import { PrismaClient } from "@prisma/client";
-import { test } from "./cardTranscation.js";
+import { test, update } from "./cardTranscation.js";
 
 dotenv.config();
 
@@ -53,6 +53,21 @@ app.post("/users", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Error creating user" });
   }
+});
+
+app.put("/admin/approve", async (req, res) => {
+  const { cardHolderId, cardId } = req.body;
+
+  const result = await update(cardHolderId, cardId);
+
+  const response = await prisma.cardDetails.update({
+    where: { card_id: cardId },
+    data: { status: true },
+  });
+
+  res.json({
+    message: "success",
+  });
 });
 
 app.listen(port, () => {

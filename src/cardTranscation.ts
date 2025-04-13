@@ -38,3 +38,22 @@ export async function test() {
     cardId: card.id,
   };
 }
+
+export async function update(cardHolderId: string, cardId: string) {
+  const currentUnixTimestamp = Math.floor(Date.now() / 1000);
+  const cardholder = await stripe.issuing.cardholders.update(cardHolderId, {
+    individual: {
+      card_issuing: {
+        user_terms_acceptance: {
+          date: currentUnixTimestamp,
+        },
+      },
+    },
+  });
+  console.log("Cardholder updated:", cardholder);
+
+  const card = await stripe.issuing.cards.update(cardId, {
+    status: "active",
+  });
+  console.log(card);
+}
