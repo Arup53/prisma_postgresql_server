@@ -72,9 +72,11 @@ datasource db {
 model User {
   id           String        @id @default(uuid())
   name         String
-  transactions Transaction[]
   createdAt DateTime @default(now())
+  transactions Transaction[]
+  cardDetails  CardDetails?
 }
+
 
 model Transaction {
   id        String   @id @default(uuid())
@@ -82,4 +84,13 @@ model Transaction {
   userId    String
   amount    Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
+}
+
+
+model CardDetails {
+  id           String   @id 
+  cardholder_Id String
+  card_id      String
+  created_at   DateTime @default(now())
+  user         User     @relation(fields: [id], references: [id], onDelete: Cascade)
 }
