@@ -191,7 +191,7 @@ app.get("/", (req: Request, res: Response) => {
 // });
 
 interface PriceChangePercentage {
-  [key: string]: number; // Ensures that `usd` and other currencies are numbers
+  [key: string]: number;
 }
 
 interface CoinData {

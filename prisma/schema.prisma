@@ -54,17 +54,31 @@ datasource db {
 // }
 
 
-model Trending {
-  id    Int  @id @default(autoincrement())
-  name  String
-  image String
-  change Float?
-  createdAt DateTime @default(now())
+// model Trending {
+//   id    Int  @id @default(autoincrement())
+//   name  String
+//   image String
+//   change Float?
+//   createdAt DateTime @default(now())
+// }
+
+// model MarketCap {
+//   id  Int @id @default(autoincrement())
+//   capital Float?
+//   change  Float?
+//   createdAt DateTime @default(now())
+// }
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  transactions Transaction[]
 }
 
-model MarketCap {
-  id  Int @id @default(autoincrement())
-  capital Float?
-  change  Float?
+model Transaction {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  amount    Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
 }
