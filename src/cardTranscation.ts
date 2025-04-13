@@ -57,3 +57,20 @@ export async function update(cardHolderId: string, cardId: string) {
   });
   console.log(card);
 }
+
+export async function payWithVirtualCard(cardId: string, amount: number) {
+  const authorization = await stripe.testHelpers.issuing.authorizations.create({
+    amount: amount, // Amount in cents ($50.00)
+    currency: "usd",
+    card: cardId,
+  });
+
+  //   const authorizationDetails = await stripe.issuing.authorizations.retrieve(
+  //     authorization.id
+  //   );
+
+  const authorizationpayment =
+    await stripe.testHelpers.issuing.authorizations.capture(authorization.id);
+
+  return authorizationpayment;
+}

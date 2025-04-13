@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import axios from "axios";
 import { PrismaClient } from "@prisma/client";
-import { test, update } from "./cardTranscation.js";
+import { payWithVirtualCard, test, update } from "./cardTranscation.js";
 
 dotenv.config();
 
@@ -68,6 +68,30 @@ app.put("/admin/approve", async (req, res) => {
   res.json({
     message: "success",
   });
+});
+
+app.post("/transaction", async (req: any, res: any) => {
+  const { userId, cardId, amount } = req.body;
+
+  const result = await payWithVirtualCard(cardId, amount);
+
+  if (result.approved) {
+    try {
+      const created = await prisma.transaction.create({
+        data: { userId, amount },
+        select: { amount: true },
+      });
+
+      return res.json({
+        message: "success",
+        amount: created.amount,
+      });
+    } catch (err) {
+      return res.status(500).json({ message: "Database error" });
+    }
+  }
+
+  return res.status(402).json({ message: "Transaction declined" });
 });
 
 app.listen(port, () => {
