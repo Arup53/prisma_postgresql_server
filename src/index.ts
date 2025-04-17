@@ -4,6 +4,7 @@ import cors from "cors";
 import axios from "axios";
 import { PrismaClient } from "@prisma/client";
 import { payWithVirtualCard, test, update } from "./cardTranscation.js";
+import { authMiddleware } from "./authMiddleware.js";
 
 dotenv.config();
 
@@ -21,6 +22,19 @@ app.get("/", (req: Request, res: Response) => {
 // const res = await getUser("koi");
 
 // console.log(res);
+// @ts-ignore
+app.get("/protected-data", authMiddleware, (req, res) => {
+  // req.user now contains the authenticated user data
+  // @ts-ignore
+  console.log(req.user.id);
+  res.json({
+    message: "Protected data",
+    // @ts-ignore
+    userId: req.user.id,
+    // @ts-ignore
+    userName: req.user.name,
+  });
+});
 
 app.post("/auth/user", async (req, res) => {
   const { name, email } = req.body;
