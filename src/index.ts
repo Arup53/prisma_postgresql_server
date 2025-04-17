@@ -22,12 +22,30 @@ app.get("/", (req: Request, res: Response) => {
 
 // console.log(res);
 
-app.post("/createUser", async (req, res) => {
+app.post("/auth/user", async (req, res) => {
   const { name, email } = req.body;
 
-  const user = await prisma.user.create({
-    data: { name, email },
-  });
+  try {
+    // Check if user exists
+    let newUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!newUser) {
+      // Create new user
+      newUser = await prisma.user.create({
+        data: {
+          name,
+          email,
+        },
+      });
+    }
+
+    res.json({ id: newUser.id, name: newUser.name });
+  } catch (error) {
+    console.error("User creation/update error:", error);
+    res.status(500).json({ error: "Failed to create/update user" });
+  }
 });
 
 app.post("/users", async (req, res) => {
