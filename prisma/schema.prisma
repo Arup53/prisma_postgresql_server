@@ -70,8 +70,9 @@ datasource db {
 // }
 
 model User {
-  id           String        @id @default(uuid())
+  id           String    @id @default(uuid())
   name         String
+  email        String?    @unique
   createdAt DateTime @default(now())
   transactions Transaction[]
   cardDetails  CardDetails?
