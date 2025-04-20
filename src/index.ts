@@ -35,6 +35,7 @@ app.get("/protected-data", authMiddleware, (req, res) => {
     userName: req.user.name,
   });
 });
+
 app.get("/allusers", async (req, res) => {
   const users = await prisma.user.findMany({
     include: {
@@ -58,6 +59,24 @@ app.get("/allusers", async (req, res) => {
 
   res.json(result);
 });
+
+app.get("/user/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: id },
+      include: {
+        transactions: true,
+        cardDetails: true,
+      },
+    });
+    res.send(user);
+  } catch (err) {
+    res.status(404).json({ message: "error , no user" });
+  }
+});
+
 app.post("/auth/user", async (req, res) => {
   const { name, email } = req.body;
 
