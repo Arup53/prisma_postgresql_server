@@ -35,7 +35,29 @@ app.get("/protected-data", authMiddleware, (req, res) => {
     userName: req.user.name,
   });
 });
+app.get("/allusers", async (req, res) => {
+  const users = await prisma.user.findMany({
+    include: {
+      transactions: true,
+    },
+  });
 
+  const result = users.map((user) => {
+    const totalAmount = user.transactions.reduce((sum, tx) => {
+      return sum + parseFloat(tx.amount.toString());
+    }, 0);
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      totalTransactionAmount: totalAmount,
+      createdAt: user.createdAt,
+    };
+  });
+
+  res.json(result);
+});
 app.post("/auth/user", async (req, res) => {
   const { name, email } = req.body;
 
