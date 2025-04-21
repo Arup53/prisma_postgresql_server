@@ -54,7 +54,7 @@ app.get("/allusers", async (req, res) => {
       name: user.name,
       email: user.email,
       totalTransactionAmount: totalAmount,
-      cardStatus: user.cardDetails?.status || "not applied",
+      cardStatus: user.cardDetails?.status ?? "not applied",
       createdAt: user.createdAt,
     };
   });
@@ -106,15 +106,15 @@ app.post("/auth/user", async (req, res) => {
 });
 
 app.post("/users", async (req, res) => {
-  const { name } = req.body;
+  const { name, email } = req.body;
   try {
     const user = await prisma.user.create({
-      data: { name },
+      data: { name, email },
       select: {
         id: true,
       },
     });
-    const cardObj = await test();
+    const cardObj = await test(name, email);
 
     const response = await prisma.cardDetails.create({
       data: {

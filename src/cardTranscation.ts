@@ -4,10 +4,10 @@ import Stripe from "stripe";
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_TEST_API_KEY || "");
 
-export async function test() {
+export async function test(name: string, email: string) {
   const cardholder = await stripe.issuing.cardholders.create({
-    name: "carl Rosen",
-    email: "carl.rosen@example.com",
+    name: name,
+    email: email,
     phone_number: "+18008675309",
     status: "active",
     type: "individual",
