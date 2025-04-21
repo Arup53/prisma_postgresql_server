@@ -86,6 +86,22 @@ app.get("/user/:id", async (req, res) => {
   }
 });
 
+app.get("/users/cardDetails", authMiddleware, async (req, res) => {
+  const user = (req as AuthenticatedRequest).user;
+  console.log(user.id);
+  try {
+    const details = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        cardDetails: true,
+      },
+    });
+    res.send(details);
+  } catch (err) {
+    res.status(404).json({ message: "error " });
+  }
+});
+
 app.post("/auth/user", async (req, res) => {
   const { name, email } = req.body;
 
@@ -162,10 +178,12 @@ app.put("/admin/approve", async (req, res) => {
   });
 });
 
-app.post("/transaction", async (req: any, res: any) => {
-  const { userId, cardId, amount } = req.body;
-
-  const result = await payWithVirtualCard(cardId, amount);
+app.post("/transaction", authMiddleware, async (req: any, res: any) => {
+  const user = (req as AuthenticatedRequest).user;
+  console.log(user.id);
+  const { cardId, amount } = req.body;
+  const userId = user.id;
+  const result = await payWithVirtualCard(cardId, amount * 100);
 
   if (result.approved) {
     try {
