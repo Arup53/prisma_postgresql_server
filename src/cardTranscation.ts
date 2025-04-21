@@ -50,12 +50,10 @@ export async function update(cardHolderId: string, cardId: string) {
       },
     },
   });
-  console.log("Cardholder updated:", cardholder);
 
   const card = await stripe.issuing.cards.update(cardId, {
     status: "active",
   });
-  console.log(card);
 }
 
 export async function payWithVirtualCard(cardId: string, amount: number) {

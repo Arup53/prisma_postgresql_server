@@ -55,6 +55,8 @@ app.get("/allusers", async (req, res) => {
       email: user.email,
       totalTransactionAmount: totalAmount,
       cardStatus: user.cardDetails?.status ?? "not applied",
+      cardHolderId: user.cardDetails?.cardholder_Id,
+      cardId: user.cardDetails?.card_id,
       createdAt: user.createdAt,
     };
   });
