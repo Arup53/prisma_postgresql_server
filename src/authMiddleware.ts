@@ -77,22 +77,40 @@ dotenv.config();
 //   }
 // };
 
-export const authMiddleware = async (req: any, res: any, next: any) => {
+// Define the user interface
+interface User {
+  id: string;
+  name: string;
+  email?: string;
+  // Add other user properties as needed
+}
+
+// Extend the Express Request type
+interface AuthenticatedRequest extends Request {
+  user: User;
+}
+
+export const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return; // Just return, don't return the response
   }
 
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!);
-    req.user = decoded; // { id, email }
-    // console.log(req.user);
+    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as User;
+    (req as AuthenticatedRequest).user = decoded;
     next();
   } catch (err) {
     console.error("Auth error:", err);
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token" });
+    return; // Just return, don't return the response
   }
 };

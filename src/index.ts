@@ -15,24 +15,29 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
+interface User {
+  id: string;
+  name: string;
+  email?: string;
+  // Add other user properties as needed
+}
+
+// Extend the Express Request type
+interface AuthenticatedRequest extends Request {
+  user: User;
+}
+
 app.get("/", (req: Request, res: Response) => {
   res.send("hello there");
 });
 
-// const res = await getUser("koi");
-
-// console.log(res);
-// @ts-ignore
-app.get("/protected-data", authMiddleware, (req, res) => {
-  // req.user now contains the authenticated user data
-  // @ts-ignore
-  console.log(req.user.id);
+app.get("/protected-data", authMiddleware, (req: Request, res: Response) => {
+  const user = (req as AuthenticatedRequest).user;
+  console.log(user.id);
   res.json({
     message: "Protected data",
-    // @ts-ignore
-    userId: req.user.id,
-    // @ts-ignore
-    userName: req.user.name,
+    userId: user.id,
+    userName: user.name,
   });
 });
 
@@ -107,15 +112,17 @@ app.post("/auth/user", async (req, res) => {
   }
 });
 
-app.post("/users", async (req, res) => {
+app.post("/users", authMiddleware, async (req: Request, res: Response) => {
+  const user = (req as AuthenticatedRequest).user;
+  console.log(user.id);
   const { name, email } = req.body;
   try {
-    const user = await prisma.user.create({
-      data: { name, email },
-      select: {
-        id: true,
-      },
-    });
+    // const user = await prisma.user.create({
+    //   data: { name, email },
+    //   select: {
+    //     id: true,
+    //   },
+    // });
     const cardObj = await test(name, email);
 
     const response = await prisma.cardDetails.create({
