@@ -40,6 +40,7 @@ app.get("/allusers", async (req, res) => {
   const users = await prisma.user.findMany({
     include: {
       transactions: true,
+      cardDetails: true,
     },
   });
 
@@ -53,6 +54,7 @@ app.get("/allusers", async (req, res) => {
       name: user.name,
       email: user.email,
       totalTransactionAmount: totalAmount,
+      cardStatus: user.cardDetails?.status || "not applied",
       createdAt: user.createdAt,
     };
   });
