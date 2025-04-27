@@ -5,6 +5,7 @@ import axios from "axios";
 import { PrismaClient } from "@prisma/client";
 import { payWithVirtualCard, test, update } from "./cardTranscation.js";
 import { authMiddleware } from "./authMiddleware.js";
+import groqTest from "./groqOcr.js";
 
 dotenv.config();
 
@@ -99,6 +100,26 @@ app.get("/users/cardDetails", authMiddleware, async (req, res) => {
     res.send(details);
   } catch (err) {
     res.status(404).json({ message: "error " });
+  }
+});
+
+app.get("/groqTest", async (req, res) => {
+  const query = req.query.img;
+
+  // @ts-ignore
+  const response = await groqTest(query);
+
+  try {
+    // Check if the response is a valid JSON string and parse it
+    // @ts-ignore
+    const parsedResponse = JSON.parse(response); // Parse the response string into a JSON object
+
+    // Send the parsed JSON response
+    res.json(parsedResponse);
+  } catch (error) {
+    // If parsing fails, return an error message
+    console.error("Error parsing response:", error);
+    res.status(500).send("Error parsing the response into JSON");
   }
 });
 
