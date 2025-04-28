@@ -105,7 +105,6 @@ app.get("/users/cardDetails", authMiddleware, async (req, res) => {
 
 app.get("/groqTest", async (req, res) => {
   const query = req.query.img;
-
   // @ts-ignore
   const response = await groqTest(query);
 
