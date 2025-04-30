@@ -76,6 +76,7 @@ model User {
   createdAt DateTime @default(now())
   transactions Transaction[]
   cardDetails  CardDetails?
+  invoices     Invoice[]
 }
 
 
@@ -95,6 +96,17 @@ model CardDetails {
   created_at   DateTime @default(now())
   status      Boolean  @default(false)
   user         User     @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id        String   @id @default(uuid())
+  billTo    String
+  subtotal  Float
+  total     Float
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 // need to add staus --- deactive as default
