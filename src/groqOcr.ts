@@ -1,7 +1,7 @@
 import { Groq } from "groq-sdk";
 
 const groq = new Groq({
-  apiKey: "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",
+  apiKey: process.env.GROQ_API_KEY,
 });
 export default async function groqTest(img: string) {
   const chatCompletion = await groq.chat.completions.create({
