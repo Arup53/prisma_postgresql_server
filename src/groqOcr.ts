@@ -16,6 +16,8 @@ const cleanNumber = (value: any): number | null => {
   return value;
 };
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function safeParseInvoice(response: any) {
   return {
     bill_to:
@@ -26,6 +28,7 @@ function safeParseInvoice(response: any) {
 }
 
 export default async function groqTest(img: string) {
+  await delay(5000);
   const chatCompletion = await groq.chat.completions.create({
     messages: [
       {

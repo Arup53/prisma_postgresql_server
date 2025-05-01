@@ -119,22 +119,31 @@ app.get(
     try {
       const invoiceData = await groqTest(queryParam);
       // const parsedResponse = JSON.parse(response!);
+      if (
+        !invoiceData.bill_to ||
+        invoiceData.subtotal == null ||
+        invoiceData.total == null
+      ) {
+        res
+          .status(422)
+          .send("Incomplete or invalid invoice data returned from OCR.");
+        return;
+      }
+      const saveInvoice = await prisma.invoice.create({
+        data: {
+          billTo: invoiceData.bill_to,
+          subtotal: invoiceData.subtotal!,
+          total: invoiceData.total!,
+          userId: user.id,
+        },
+        select: {
+          billTo: true,
+          subtotal: true,
+          total: true,
+        },
+      });
 
-      // const saveInvoice = await prisma.invoice.create({
-      //   data: {
-      //     billTo: invoiceData.bill_to,
-      //     subtotal: invoiceData.subtotal!,
-      //     total: invoiceData.total!,
-      //     userId: user.id,
-      //   },
-      //   select: {
-      //     billTo: true,
-      //     subtotal: true,
-      //     total: true,
-      //   },
-      // });
-
-      res.json(invoiceData);
+      res.json(saveInvoice);
     } catch (error) {
       console.error("Error parsing response:", error);
       res.status(500).send("Error parsing the response into JSON");
