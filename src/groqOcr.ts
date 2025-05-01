@@ -8,10 +8,12 @@ const groq = new Groq({
 });
 
 const cleanNumber = (value: any): number | null => {
-  if (typeof value !== "string") return null;
-  const cleaned = value.replace(/[^0-9.]/g, ""); // Remove $, commas, etc.
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? null : parsed;
+  if (typeof value === "string") {
+    const cleaned = value.replace(/[^0-9.]/g, ""); // Remove $, commas, etc.
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) ? null : parsed;
+  }
+  return value;
 };
 
 function safeParseInvoice(response: any) {
@@ -72,7 +74,6 @@ Always return this structure, even if some values are missing:
   const parsed = JSON.parse(raw!);
   console.log(parsed);
   const cleaned = safeParseInvoice(parsed);
-
   console.log("Cleaned Invoice:", cleaned);
   return cleaned;
 }

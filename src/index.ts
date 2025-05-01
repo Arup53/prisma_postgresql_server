@@ -110,7 +110,7 @@ app.get(
     const user = (req as AuthenticatedRequest).user;
     console.log(user.id);
     const queryParam = req.query.img;
-
+    console.log(queryParam);
     if (typeof queryParam !== "string") {
       res.status(400).send("Invalid query parameter. 'img' must be a string.");
       return;
@@ -120,16 +120,21 @@ app.get(
       const invoiceData = await groqTest(queryParam);
       // const parsedResponse = JSON.parse(response!);
 
-      const saveInvoice = await prisma.invoice.create({
-        data: {
-          billTo: invoiceData.bill_to,
-          subtotal: invoiceData.subtotal!,
-          total: invoiceData.total!,
-          userId: user.id,
-        },
-      });
+      // const saveInvoice = await prisma.invoice.create({
+      //   data: {
+      //     billTo: invoiceData.bill_to,
+      //     subtotal: invoiceData.subtotal!,
+      //     total: invoiceData.total!,
+      //     userId: user.id,
+      //   },
+      //   select: {
+      //     billTo: true,
+      //     subtotal: true,
+      //     total: true,
+      //   },
+      // });
 
-      res.json(saveInvoice);
+      res.json(invoiceData);
     } catch (error) {
       console.error("Error parsing response:", error);
       res.status(500).send("Error parsing the response into JSON");
