@@ -105,6 +105,7 @@ app.get("/users/cardDetails", authMiddleware, async (req, res) => {
 
 app.get("/groqTest", async (req: Request, res: Response): Promise<void> => {
   const queryParam = req.query.img;
+  console.log(queryParam);
 
   if (typeof queryParam !== "string") {
     res.status(400).send("Invalid query parameter. 'img' must be a string.");
@@ -113,8 +114,8 @@ app.get("/groqTest", async (req: Request, res: Response): Promise<void> => {
 
   try {
     const response = await groqTest(queryParam);
-    const parsedResponse = JSON.parse(response!);
-    res.json(parsedResponse);
+    // const parsedResponse = JSON.parse(response!);
+    res.json(response);
   } catch (error) {
     console.error("Error parsing response:", error);
     res.status(500).send("Error parsing the response into JSON");
