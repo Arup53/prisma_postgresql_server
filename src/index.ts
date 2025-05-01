@@ -108,7 +108,7 @@ app.get(
   authMiddleware,
   async (req: Request, res: Response): Promise<void> => {
     const user = (req as AuthenticatedRequest).user;
-
+    console.log(user.id);
     const queryParam = req.query.img;
 
     if (typeof queryParam !== "string") {
@@ -117,9 +117,19 @@ app.get(
     }
 
     try {
-      const response = await groqTest(queryParam);
+      const invoiceData = await groqTest(queryParam);
       // const parsedResponse = JSON.parse(response!);
-      res.json(response);
+
+      const saveInvoice = await prisma.invoice.create({
+        data: {
+          billTo: invoiceData.bill_to,
+          subtotal: invoiceData.subtotal!,
+          total: invoiceData.total!,
+          userId: user.id,
+        },
+      });
+
+      res.json(saveInvoice);
     } catch (error) {
       console.error("Error parsing response:", error);
       res.status(500).send("Error parsing the response into JSON");
