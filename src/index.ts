@@ -47,12 +47,17 @@ app.get("/allusers", async (req, res) => {
     include: {
       transactions: true,
       cardDetails: true,
+      invoices: true,
     },
   });
 
   const result = users.map((user) => {
     const totalAmount = user.transactions.reduce((sum, tx) => {
       return sum + parseFloat(tx.amount.toString());
+    }, 0);
+
+    const totalInvoiceExpense = user.invoices.reduce((sum, invoice) => {
+      return sum + invoice.total;
     }, 0);
 
     return {
@@ -63,7 +68,7 @@ app.get("/allusers", async (req, res) => {
       cardStatus: user.cardDetails?.status ?? "not applied",
       cardHolderId: user.cardDetails?.cardholder_Id,
       cardId: user.cardDetails?.card_id,
-      createdAt: user.createdAt,
+      invoiceExpense: totalInvoiceExpense,
     };
   });
 
