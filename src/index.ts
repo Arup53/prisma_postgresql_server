@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import axios from "axios";
 import { PrismaClient } from "@prisma/client";
-import { payWithVirtualCard, test, update } from "./cardTranscation.js";
 import { authMiddleware } from "./authMiddleware.js";
 import groqTest from "./groqOcr.js";
+import { payWithVirtualCard, test, update } from "./cardTranscation.js";
 
 dotenv.config();
 
@@ -13,8 +13,14 @@ const app: Express = express();
 const prisma = new PrismaClient();
 const port = process.env.PORT || 3000;
 
+const corsOptions = {
+  origin: ["http://localhost:3000"],
+  credentials: true,
+  optionalSuccesssStatus: 200,
+};
+
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 
 interface User {
   id: string;
